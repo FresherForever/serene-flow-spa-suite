@@ -71,3 +71,115 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+# Serene Flow Spa Suite
+
+A comprehensive spa management application for appointment booking, customer management, and service scheduling.
+
+## Tech Stack
+
+- Frontend: React with Vite, TypeScript, Tailwind CSS
+- Backend: Node.js with Express.js
+- Database: PostgreSQL
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js and npm installed
+- PostgreSQL installed (see PostgreSQL setup below)
+
+### PostgreSQL Setup
+
+1. **Install PostgreSQL**
+   - Visit the [PostgreSQL official download page](https://www.postgresql.org/download/windows/)
+   - Download the installer for Windows
+   - Run the installer and follow the setup wizard
+   - Select the components to install (PostgreSQL Server, pgAdmin 4, and Command Line Tools)
+   - Set a password for the postgres user (remember this password)
+   - Keep the default port (5432)
+
+2. **Create Database with pgAdmin 4**
+   - After installation, open pgAdmin 4 from the Start menu
+   - If this is your first time opening pgAdmin, set a master password for pgAdmin itself
+   - In the left sidebar, expand "Servers" by clicking the "+" icon
+   - Right-click on the PostgreSQL server and select "Connect Server"
+   - Enter the password you created during PostgreSQL installation
+   - Once connected, right-click on the "Databases" folder
+   - Select "Create" then "Database..."
+   - In the "Create - Database" dialog box:
+     - Enter `serene_flow_db` in the "Database" field
+     - Ensure "Owner" is set to "postgres"
+   - Click "Save" to create the database
+
+### Running the Application
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd serene-flow-spa-suite
+   ```
+
+2. Set up the backend:
+   ```bash
+   cd backend
+   npm install
+   
+   # Create .env file if it doesn't exist
+   echo "PORT=5000
+   NODE_ENV=development
+   
+   # PostgreSQL Configuration
+   DB_HOST=localhost
+   DB_PORT=5432
+   DB_NAME=serene_flow_db
+   DB_USER=postgres
+   DB_PASSWORD=postgres" > .env
+   
+   # Start the backend server
+   npm run dev
+   ```
+
+3. Set up the frontend (in a new terminal):
+   ```bash
+   # From the project root
+   npm install
+   npm run dev
+   ```
+
+4. Access the application:
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:5000
+   - API Health check: http://localhost:5000/api/health
+
+## API Documentation
+
+The backend provides the following REST endpoints:
+
+### Customers
+- `GET /api/customers` - Get all customers
+- `GET /api/customers/:id` - Get customer by ID
+- `POST /api/customers` - Create a new customer
+- `PUT /api/customers/:id` - Update a customer
+- `DELETE /api/customers/:id` - Delete a customer
+
+### Staff
+- `GET /api/staff` - Get all staff members
+- `GET /api/staff/:id` - Get staff by ID 
+- `POST /api/staff` - Create a new staff member
+- `PUT /api/staff/:id` - Update a staff member
+- `DELETE /api/staff/:id` - Delete a staff member
+
+### Services
+- `GET /api/services` - Get all services
+- `GET /api/services/:id` - Get service by ID
+- `POST /api/services` - Create a new service
+- `PUT /api/services/:id` - Update a service
+- `DELETE /api/services/:id` - Delete a service
+
+### Appointments
+- `GET /api/appointments` - Get all appointments
+- `GET /api/appointments/:id` - Get appointment by ID
+- `POST /api/appointments` - Create a new appointment
+- `PUT /api/appointments/:id` - Update an appointment
+- `DELETE /api/appointments/:id` - Delete an appointment
