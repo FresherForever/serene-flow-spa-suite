@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -22,14 +22,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { format, setYear, setMonth } from "date-fns";
+import { format, setYear, setMonth, addMonths } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -79,6 +79,27 @@ export function CustomerForm({
   // Separate state for UI display in dropdowns to ensure they update properly
   const [selectedMonth, setSelectedMonth] = useState<string>("");
   const [selectedYear, setSelectedYear] = useState<string>("");
+
+  // Refs for interval timers
+  const monthIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const yearIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Utility function to clear all intervals
+  const clearAllIntervals = () => {
+    if (monthIntervalRef.current) {
+      clearInterval(monthIntervalRef.current);
+      monthIntervalRef.current = null;
+    }
+    if (yearIntervalRef.current) {
+      clearInterval(yearIntervalRef.current);
+      yearIntervalRef.current = null;
+    }
+  };
+
+  // Clean up intervals when component unmounts
+  useEffect(() => {
+    return () => clearAllIntervals();
+  }, []);
   
   // Generate years for the dropdown (100 years back from current)
   const currentYear = new Date().getFullYear();
@@ -169,6 +190,139 @@ export function CustomerForm({
       const newDate = new Date(yearToUse, parseInt(monthIndex), 1);
       setDate(newDate);
       form.setValue("birthdate", newDate);
+    }
+  };
+  
+  // Change month up or down by one
+  const changeMonth = (increment: boolean) => {
+    let newMonthIndex: number;
+    let newYearValue: number;
+    
+    // If no date is selected, use current date for reference
+    if (!date) {
+      const now = new Date();
+      const baseMonthIndex = selectedMonth ? parseInt(selectedMonth) : now.getMonth();
+      const baseYear = selectedYear ? parseInt(selectedYear) : now.getFullYear();
+      
+      if (increment) {
+        newMonthIndex = baseMonthIndex === 11 ? 0 : baseMonthIndex + 1;
+        newYearValue = baseMonthIndex === 11 ? baseYear + 1 : baseYear;
+      } else {
+        newMonthIndex = baseMonthIndex === 0 ? 11 : baseMonthIndex - 1;
+        newYearValue = baseMonthIndex === 0 ? baseYear - 1 : baseYear;
+      }
+      
+      const newDate = new Date(newYearValue, newMonthIndex, 1);
+      setDate(newDate);
+      setSelectedMonth(newMonthIndex.toString());
+      setSelectedYear(newYearValue.toString());
+      form.setValue("birthdate", newDate);
+    } else {
+      // Use the existing date
+      const baseMonthIndex = date.getMonth();
+      const baseYear = date.getFullYear();
+      
+      if (increment) {
+        newMonthIndex = baseMonthIndex === 11 ? 0 : baseMonthIndex + 1;
+        newYearValue = baseMonthIndex === 11 ? baseYear + 1 : baseYear;
+      } else {
+        newMonthIndex = baseMonthIndex === 0 ? 11 : baseMonthIndex - 1;
+        newYearValue = baseMonthIndex === 0 ? baseYear - 1 : baseYear;
+      }
+      
+      const newDate = new Date(date);
+      newDate.setMonth(newMonthIndex);
+      newDate.setFullYear(newYearValue);
+      setDate(newDate);
+      setSelectedMonth(newMonthIndex.toString());
+      setSelectedYear(newYearValue.toString());
+      form.setValue("birthdate", newDate);
+    }
+  };
+  
+  // Change year up or down by one
+  const changeYear = (increment: boolean) => {
+    let newYearValue: number;
+    
+    // If no date is selected, use current date for reference
+    if (!date) {
+      const now = new Date();
+      const baseYear = selectedYear ? parseInt(selectedYear) : now.getFullYear();
+      newYearValue = increment ? baseYear + 1 : baseYear - 1;
+      
+      const monthToUse = selectedMonth ? parseInt(selectedMonth) : now.getMonth();
+      const newDate = new Date(newYearValue, monthToUse, 1);
+      setDate(newDate);
+      setSelectedYear(newYearValue.toString());
+      form.setValue("birthdate", newDate);
+    } else {
+      // Use the existing date
+      const baseYear = date.getFullYear();
+      newYearValue = increment ? baseYear + 1 : baseYear - 1;
+      
+      const newDate = new Date(date);
+      newDate.setFullYear(newYearValue);
+      setDate(newDate);
+      setSelectedYear(newYearValue.toString());
+      form.setValue("birthdate", newDate);
+    }
+  };
+  
+  // Mouse down handlers for continuous scrolling
+  const handleMonthMouseDown = (increment: boolean) => {
+    // First immediate change
+    changeMonth(increment);
+    
+    // Then start interval for continuous change
+    const timer = setTimeout(() => {
+      monthIntervalRef.current = setInterval(() => {
+        changeMonth(increment);
+      }, 100); // Fast scroll after initial delay
+    }, 500); // Initial delay before fast scrolling starts
+    
+    monthIntervalRef.current = timer as unknown as NodeJS.Timeout;
+  };
+  
+  const handleYearMouseDown = (increment: boolean) => {
+    // First immediate change
+    changeYear(increment);
+    
+    // Then start interval for continuous change
+    const timer = setTimeout(() => {
+      yearIntervalRef.current = setInterval(() => {
+        changeYear(increment);
+      }, 100); // Fast scroll after initial delay
+    }, 500); // Initial delay before fast scrolling starts
+    
+    yearIntervalRef.current = timer as unknown as NodeJS.Timeout;
+  };
+  
+  // Mouse up handler to clear intervals
+  const handleMouseUp = () => {
+    clearAllIntervals();
+  };
+
+  // Handle month navigation (left/right)
+  const navigateMonth = (increment: boolean) => {
+    const monthsToAdd = increment ? 1 : -1;
+    
+    if (date) {
+      const newDate = addMonths(date, monthsToAdd);
+      setDate(newDate);
+      setSelectedMonth(newDate.getMonth().toString());
+      setSelectedYear(newDate.getFullYear().toString());
+      form.setValue("birthdate", form.getValues("birthdate")); // Preserve the selected day
+    } else {
+      const now = new Date();
+      const baseMonth = selectedMonth ? parseInt(selectedMonth) : now.getMonth();
+      const baseYear = selectedYear ? parseInt(selectedYear) : now.getFullYear();
+      
+      const newDate = new Date(baseYear, baseMonth, 1);
+      const updatedDate = addMonths(newDate, monthsToAdd);
+      
+      setDate(updatedDate);
+      setSelectedMonth(updatedDate.getMonth().toString());
+      setSelectedYear(updatedDate.getFullYear().toString());
     }
   };
 
@@ -275,56 +429,149 @@ export function CustomerForm({
                     <PopoverContent className="w-auto p-0" align="start">
                       <div className="p-3 border-b">
                         <div className="flex justify-between items-center gap-2">
-                          <Select 
-                            value={selectedMonth}
-                            onValueChange={handleMonthSelect}
-                          >
-                            <SelectTrigger className="w-[120px]">
-                              <SelectValue placeholder="Month" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {months.map((month, index) => (
-                                <SelectItem key={month} value={index.toString()}>
-                                  {month}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          {/* Month selector with dropdowns and buttons */}
+                          <div className="flex flex-col items-center">
+                            <div className="text-sm font-medium mb-1">Month</div>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8"
+                                onMouseDown={() => handleMonthMouseDown(false)}
+                                onMouseUp={handleMouseUp}
+                                onMouseLeave={handleMouseUp}
+                                aria-label="Previous month"
+                              >
+                                <ChevronDown className="h-4 w-4" />
+                              </Button>
+                              
+                              <Select 
+                                value={selectedMonth}
+                                onValueChange={handleMonthSelect}
+                              >
+                                <SelectTrigger className="w-[110px]">
+                                  <SelectValue placeholder="Month" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {months.map((month, index) => (
+                                    <SelectItem key={month} value={index.toString()}>
+                                      {month}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8"
+                                onMouseDown={() => handleMonthMouseDown(true)}
+                                onMouseUp={handleMouseUp}
+                                onMouseLeave={handleMouseUp}
+                                aria-label="Next month"
+                              >
+                                <ChevronUp className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
                           
-                          <Select 
-                            value={selectedYear}
-                            onValueChange={handleYearSelect}
-                          >
-                            <SelectTrigger className="w-[90px]">
-                              <SelectValue placeholder="Year" />
-                            </SelectTrigger>
-                            <SelectContent className="h-80">
-                              {years.map(year => (
-                                <SelectItem key={year} value={year.toString()}>
-                                  {year}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          {/* Year selector with dropdowns and buttons */}
+                          <div className="flex flex-col items-center">
+                            <div className="text-sm font-medium mb-1">Year</div>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8"
+                                onMouseDown={() => handleYearMouseDown(false)}
+                                onMouseUp={handleMouseUp}
+                                onMouseLeave={handleMouseUp}
+                                aria-label="Previous year"
+                              >
+                                <ChevronDown className="h-4 w-4" />
+                              </Button>
+                              
+                              <Select 
+                                value={selectedYear}
+                                onValueChange={handleYearSelect}
+                              >
+                                <SelectTrigger className="w-[80px]">
+                                  <SelectValue placeholder="Year" />
+                                </SelectTrigger>
+                                <SelectContent className="h-80">
+                                  {years.map(year => (
+                                    <SelectItem key={year} value={year.toString()}>
+                                      {year}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-8 w-8"
+                                onMouseDown={() => handleYearMouseDown(true)}
+                                onMouseUp={handleMouseUp}
+                                onMouseLeave={handleMouseUp}
+                                aria-label="Next year"
+                              >
+                                <ChevronUp className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <Calendar
-                        mode="single"
-                        selected={field.value || undefined}
-                        onSelect={(selectedDate) => {
-                          if (selectedDate) {
-                            field.onChange(selectedDate);
-                            setDate(selectedDate);
-                            setSelectedMonth(selectedDate.getMonth().toString());
-                            setSelectedYear(selectedDate.getFullYear().toString());
-                          }
-                          setCalendarOpen(false);
-                        }}
-                        initialFocus
-                        month={date || undefined}
-                        defaultMonth={field.value || undefined}
-                        captionLayout="buttons-only"
-                      />
+                      
+                      <div className="h-[290px] overflow-y-auto pb-1"> {/* Increased height and added overflow-y-auto */}
+                        <Calendar
+                          mode="single"
+                          selected={field.value || undefined}
+                          onSelect={(selectedDate) => {
+                            if (selectedDate) {
+                              field.onChange(selectedDate);
+                              setDate(selectedDate);
+                              setSelectedMonth(selectedDate.getMonth().toString());
+                              setSelectedYear(selectedDate.getFullYear().toString());
+                            }
+                            setCalendarOpen(false);
+                          }}
+                          initialFocus
+                          month={date || undefined}
+                          defaultMonth={field.value || undefined}
+                          showOutsideDays={false}
+                          className="rounded-md"
+                          classNames={{
+                            caption_label: "hidden", // Hides the built-in month/year caption
+                            nav: "hidden" // Hides the built-in navigation (prev/next month)
+                          }}
+                        />
+                      </div>
+                      
+                      {/* Month navigation row - moved from above the calendar to below it */}
+                      <div className="flex justify-between items-center p-2 border-t">
+                        <Button 
+                          variant="outline"
+                          size="icon"
+                          className="h-8 w-8 rounded-full"
+                          onClick={() => navigateMonth(false)}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        
+                        <div className="font-medium">
+                          {date ? `${months[date.getMonth()]} ${date.getFullYear()}` : 'Select a date'}
+                        </div>
+                        
+                        <Button 
+                          variant="outline"
+                          size="icon" 
+                          className="h-8 w-8 rounded-full"
+                          onClick={() => navigateMonth(true)}
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </PopoverContent>
                   </Popover>
                   <FormMessage />
