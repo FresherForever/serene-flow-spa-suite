@@ -22,3 +22,28 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment variables and secrets
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env*.local
+*.pem
+
+# Supabase
+.supabase
+
+# Private configuration files
+config.private.js
+*config.private.json
+*secrets.json
+*credentials.json
+*_private.*
+
+# Build artifacts and cache
+.cache
+.temp
+build/
+coverage/
