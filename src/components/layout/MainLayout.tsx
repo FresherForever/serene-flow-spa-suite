@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
   Calendar, 
@@ -11,14 +11,23 @@ import {
   X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MainLayoutProps {
   children: React.ReactNode;
 }
 
 const MainLayout = ({ children }: MainLayoutProps) => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const isMobile = useIsMobile();
+  const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
   const location = useLocation();
+  
+  // Update sidebar state when switching between mobile and desktop
+  React.useEffect(() => {
+    if (isMobile !== undefined) {
+      setSidebarOpen(!isMobile);
+    }
+  }, [isMobile]);
   
   const navItems = [
     {
@@ -58,8 +67,15 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         )}
       >
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between h-16 px-4 border-b">
-            <Link to="/" className="flex items-center">
+          <div className="flex items-center justify-between h-16 px-4 border-b">            <Link 
+              to="/" 
+              className="flex items-center"
+              onClick={() => {
+                if (isMobile) {
+                  setSidebarOpen(false);
+                }
+              }}
+            >
               <span className="text-xl font-semibold text-spa-600">SereneSpa</span>
             </Link>
             <button
@@ -70,11 +86,15 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             </button>
           </div>
           
-          <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-            {navItems.map((item) => (
+          <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">            {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
+                onClick={() => {
+                  if (isMobile) {
+                    setSidebarOpen(false);
+                  }
+                }}
                 className={cn(
                   "flex items-center px-4 py-3 text-sm rounded-md transition-colors",
                   location.pathname === item.path
