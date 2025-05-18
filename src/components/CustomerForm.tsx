@@ -10,7 +10,8 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
+  DialogOverlay
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -332,12 +333,10 @@ export function CustomerForm({
       setSelectedMonth(date.getMonth().toString());
       setSelectedYear(date.getFullYear().toString());
     }
-  }, [date]);
-
-  return (
+  }, [date]);  return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[525px]">
-        <DialogHeader>
+        <DialogHeader className="mb-2">
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
             {initialData 
@@ -346,8 +345,8 @@ export function CustomerForm({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3 py-1 max-h-[60vh] overflow-y-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="firstName"
@@ -522,8 +521,7 @@ export function CustomerForm({
                           </div>
                         </div>
                       </div>
-                      
-                      <div className="h-[290px] overflow-y-auto pb-1"> {/* Increased height and added overflow-y-auto */}
+                        <div className="h-[320px] overflow-y-auto pb-1"> {/* Increased height for better visibility of all dates */}
                         <Calendar
                           mode="single"
                           selected={field.value || undefined}
@@ -539,11 +537,14 @@ export function CustomerForm({
                           initialFocus
                           month={date || undefined}
                           defaultMonth={field.value || undefined}
-                          showOutsideDays={false}
+                          showOutsideDays={true}
                           className="rounded-md"
                           classNames={{
                             caption_label: "hidden", // Hides the built-in month/year caption
-                            nav: "hidden" // Hides the built-in navigation (prev/next month)
+                            nav: "hidden", // Hides the built-in navigation (prev/next month)
+                            table: "w-full border-collapse space-y-1",
+                            row: "flex w-full mt-2",
+                            cell: "h-9 w-9 text-center text-sm p-0 relative"
                           }}
                         />
                       </div>
@@ -595,8 +596,7 @@ export function CustomerForm({
                   <FormMessage />
                 </FormItem>
               )}
-            />
-            <DialogFooter>
+            />            <DialogFooter className="mt-4">
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
