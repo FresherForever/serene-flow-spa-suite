@@ -39,6 +39,7 @@ Choose the deployment option that best fits your needs:
 4. **Configure environment variables**
    - Add the following environment variables:
      - `NODE_ENV`: `production`
+     - `FRONTEND_URL`: Your deployment URL (e.g., `https://your-app.vercel.app`)
      - `JWT_SECRET`: Generate a secure random string (use PowerShell command below)
      - `JWT_EXPIRES_IN`: `24h`
 

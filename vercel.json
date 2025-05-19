@@ -1,18 +1,19 @@
-{  "version": 2,
-  "buildCommand": "bash ./build.sh",
+{
+  "version": 2,
+  "buildCommand": "node build.js",
   "outputDirectory": "dist",
-  "framework": "vite",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/api/health", "destination": "/api" },
+    { "source": "/api/(.*)", "destination": "/api/[...catchAll]" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
+  "env": {
+    "NODE_ENV": "production"
+  },
   "functions": {
-    "api/index.js": {
+    "api/*.js": {
       "memory": 1024,
       "maxDuration": 10
     }
-  },
-  "env": {
-    "NODE_ENV": "production"
   }
 }

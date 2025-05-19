@@ -4,11 +4,12 @@
   "version": "0.0.0",
   "type": "module",  "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node build.js",
+    "build:vite": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "vercel-build": "node vercel-setup.js && node vercel-migrate.js && vite build",
+    "vercel-build": "node vercel-setup.js && node db-config-utility.js && node vercel-migrate.js && vite build",
     "preinstall": "node vercel-setup.js"
   },
   "dependencies": {
