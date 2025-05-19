@@ -1,5 +1,8 @@
 // catch-all.js - Handles all API requests
-import serverHandler from '../backend/src/server';
+// Use createRequire to import CommonJS modules
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const serverHandler = require('../backend/src/server');
 
 export default async function handler(req, res) {
   // Add CORS headers for Vercel environment

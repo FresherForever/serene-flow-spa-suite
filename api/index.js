@@ -1,8 +1,10 @@
 // Root API handler for Vercel serverless functions
 // This file handles requests to the /api endpoint
 
-// Import your actual server implementation
-// Using CommonJS require syntax for better compatibility
+// Import your actual server implementation using dynamic import
+// We'll need to use dynamic import since we're in an ES module
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 const serverHandler = require('../backend/src/server');
 
 // Export handler for Vercel serverless function

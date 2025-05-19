@@ -9,6 +9,10 @@ echo "Installing dependencies..."
 npm install
 npm install vite@latest @vitejs/plugin-react-swc --no-save
 
+# Copy the Vercel-specific Vite config to be used
+echo "Setting up Vercel-specific configuration..."
+cp vite.config.vercel.js vite.config.js
+
 # Run database migrations
 echo "Running database migrations..."
 node vercel-migrate.js
