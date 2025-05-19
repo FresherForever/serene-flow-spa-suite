@@ -7,6 +7,7 @@ echo "NPM version: $(npm -v)"
 # Install dependencies
 echo "Installing dependencies..."
 npm install
+npm install vite@latest @vitejs/plugin-react-swc --no-save
 
 # Run database migrations
 echo "Running database migrations..."

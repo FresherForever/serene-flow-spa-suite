@@ -8,7 +8,8 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "vercel-build": "node vercel-migrate.js && npx vite build"
+    "vercel-build": "node vercel-setup.js && node vercel-migrate.js && vite build",
+    "preinstall": "node vercel-setup.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -57,10 +58,11 @@
     "react-router-dom": "^6.26.2",
     "recharts": "^2.12.7",
     "sonner": "^1.5.0",
-    "tailwind-merge": "^2.5.2",
-    "tailwindcss-animate": "^1.0.7",
+    "tailwind-merge": "^2.5.2",    "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.3",
-    "zod": "^3.24.3"
+    "zod": "^3.24.3",
+    "vite": "^5.4.1",
+    "@vitejs/plugin-react-swc": "^3.5.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
@@ -74,11 +76,9 @@
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
-    "lovable-tagger": "^1.1.7",
-    "postcss": "^8.4.47",
+    "lovable-tagger": "^1.1.7",    "postcss": "^8.4.47",
     "tailwindcss": "^3.4.11",
     "typescript": "^5.5.3",
-    "typescript-eslint": "^8.0.1",
-    "vite": "^5.4.1"
+    "typescript-eslint": "^8.0.1"
   }
 }
