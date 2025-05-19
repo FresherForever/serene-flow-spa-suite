@@ -12,8 +12,14 @@ npm install
 echo "Running database migrations..."
 node vercel-migrate.js
 
-# Build the application
-echo "Building application..."
+# Build the frontend application
+echo "Building frontend application..."
 npx vite build
+
+# Install API dependencies
+echo "Setting up API directory..."
+cd api
+npm install
+cd ..
 
 echo "Build completed successfully!"

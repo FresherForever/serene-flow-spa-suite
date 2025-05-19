@@ -55,9 +55,22 @@ app.get('/api/health', (req, res) => {
 app.use(notFound);
 app.use(errorHandler);
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-});
+// Check if running as a standalone server or being imported
+if (require.main === module) {
+  // Start server when running directly
+  app.listen(PORT, () => {
+    console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  });
+}
 
-module.exports = app;
+// Export a handler function for serverless environments
+const handler = (req, res) => {
+  // Remove any base path from the request URL
+  if (req.url.startsWith('/api/')) {
+    req.url = req.url.replace('/api', '');
+  }
+  
+  return app(req, res);
+};
+
+module.exports = handler;

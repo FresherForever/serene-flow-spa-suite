@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": false,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "jsx": "preserve",
+    "lib": ["ESNext"],
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["**/*.js", "**/*.ts"],
+  "exclude": ["node_modules"]
+}
