@@ -16,32 +16,8 @@ console.log(`Running in Vercel environment: ${isVercel ? 'Yes' : 'No'}`);
 
 if (isVercel) {
   try {
-    console.log("Creating minimal vite.config.js for Vercel...");
-    
-    const minimalConfig = `
-// Minimal Vite configuration for Vercel build
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-swc';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-export default defineConfig({
-  plugins: [
-    react(),
-  ],
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
-  },
-  base: './',
-  build: {
-    outDir: 'dist',
-  },
-});`;
+    console.log("Creating minimal vite.config.js for Vercel...");      // Simply copy from the existing vite.config.vercel.js file
+      const minimalConfig = fs.readFileSync(path.join(process.cwd(), 'vite.config.vercel.js'), 'utf8');
       fs.writeFileSync(path.join(process.cwd(), 'vite.config.js'), minimalConfig);
     console.log("Successfully created minimal vite.config.js");
   } catch (error) {
