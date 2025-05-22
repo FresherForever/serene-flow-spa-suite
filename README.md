@@ -20,6 +20,30 @@ If you want to work locally using your own IDE, you can clone this repo and push
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
+## Deployment
+
+The Serene Flow Spa Suite is configured for easy deployment to Vercel:
+
+```bash
+# Deploy to Vercel with one command
+npm run deploy
+```
+
+This will run the automated deployment process including pre-deployment verification.
+
+For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+
+### Recent Improvements
+
+We've made significant improvements to the Vercel deployment process:
+
+- Enhanced build process with multiple fallback strategies
+- Improved API endpoint handling for Vercel's serverless functions
+- Beautiful fallback page that matches the application design
+- Comprehensive verification tools to ensure deployments work correctly
+
+For details on these improvements, see [VERCEL_DEPLOYMENT_IMPROVEMENTS.md](./VERCEL_DEPLOYMENT_IMPROVEMENTS.md).
+
 Follow these steps:
 
 ```sh

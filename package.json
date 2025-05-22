@@ -16,7 +16,9 @@
     "verify": "node verify-deployment.js",
     "verify:local": "node verify-deployment.js",
     "verify:vercel": "node verify-deployment.js --vercel",
-    "start:full": "pwsh -File ./start-dev.ps1"
+    "verify:deployed": "node verify-deployed.js",
+    "start:full": "pwsh -File ./start-dev.ps1",
+    "deploy": "pwsh -File ./deploy-to-vercel.ps1"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
