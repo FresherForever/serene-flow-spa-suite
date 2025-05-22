@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "node build.js",
+  "buildCommand": "node static-build.js",
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/api/health", "destination": "/api" },

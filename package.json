@@ -2,15 +2,15 @@
   "name": "vite_react_shadcn_ts",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
-  "scripts": {
+  "type": "module",  "scripts": {
     "dev": "vite",
     "build": "node build.js",
     "build:vite": "vite build",
     "build:dev": "vite build --mode development",
+    "build:static": "node static-build.js",
     "lint": "eslint .",
     "preview": "vite preview",
-    "vercel-build": "node vercel-setup.js && node db-config-utility.js && node vercel-migrate.js && vite build",
+    "vercel-build": "node static-build.js",
     "preinstall": "node vercel-setup.js",
     "verify": "node verify-deployment.js",
     "verify:local": "node verify-deployment.js",
