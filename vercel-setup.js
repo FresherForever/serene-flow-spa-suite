@@ -21,11 +21,10 @@ if (isVercel) {
     const minimalConfig = fs.readFileSync(path.join(process.cwd(), 'vite.config.vercel.js'), 'utf8');
     fs.writeFileSync(path.join(process.cwd(), 'vite.config.js'), minimalConfig);
     console.log("Successfully created minimal vite.config.js");
-    
-    // Create simplified PostCSS config without requiring tailwindcss
+      // Create simplified PostCSS config without requiring tailwindcss
     console.log("Creating simplified postcss.config.js for Vercel...");
-    const postCssConfig = `
-module.exports = {
+    const postCssConfig = `// ES Module version of PostCSS config for Vercel
+export default {
   plugins: {
     // Simplified config that doesn't require tailwindcss
     autoprefixer: {}
