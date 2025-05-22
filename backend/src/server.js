@@ -51,6 +51,48 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Server is running' });
 });
 
+// Environment information route for verification tools
+const environmentHandler = (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    environment: process.env.NODE_ENV || 'development',
+    nodeVersion: process.version,
+    timestamp: new Date().toISOString(),
+    version: '1.0.0',
+    database: {
+      connected: global.dbConnected || false,
+      name: process.env.DB_NAME || 'serene_flow_db'
+    },
+    deployment: {
+      platform: process.env.VERCEL ? 'Vercel' : 'Local',
+      region: process.env.VERCEL_REGION || 'local'
+    }
+  });
+};
+
+app.get('/api/environment', environmentHandler);
+app.get('/environment', environmentHandler); // For Vercel serverless compatibility
+
+// Database health check
+app.get('/api/health/database', async (req, res) => {
+  const { sequelize } = require('./config/database');
+  
+  try {
+    await sequelize.authenticate();
+    res.status(200).json({ 
+      status: 'OK', 
+      message: 'Database connection is healthy',
+      connection: true
+    });
+  } catch (error) {
+    res.status(200).json({ 
+      status: 'WARNING', 
+      message: 'Database connection failed: ' + error.message,
+      connection: false
+    });
+  }
+});
+
 // Error handling middleware
 app.use(notFound);
 app.use(errorHandler);
@@ -73,4 +115,13 @@ const handler = (req, res) => {
   return app(req, res);
 };
 
-module.exports = handler;
+// Only start the server if this file is run directly
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
+
+// Export the Express app for use in index.js
+module.exports = app;

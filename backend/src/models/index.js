@@ -1,8 +1,10 @@
+const { sequelize } = require('../config/database');
+
+// Import models after initializing sequelize
 const Customer = require('./Customer');
 const Staff = require('./Staff');
 const Service = require('./Service');
 const Appointment = require('./Appointment');
-const sequelize = require('../config/database');
 
 // Define relationships between models
 Appointment.belongsTo(Customer);

@@ -1,6 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, DollarSign, UserCircle, Users } from "lucide-react";
+import DeploymentStatus from "@/components/DeploymentStatus";
 
 // Mock data for dashboard
 const todaysAppointments = [
@@ -27,6 +28,9 @@ const Dashboard = () => {
           <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
         </div>
       </div>
+      
+      {/* Deployment Status - visible for easy environment verification */}
+      <DeploymentStatus className="mb-4" />
       
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

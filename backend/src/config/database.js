@@ -1,7 +1,8 @@
+// PostgreSQL configuration for Serene Flow Spa Suite
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
-// PostgreSQL configuration
+// Create Sequelize instance
 let sequelize;
 
 // Check if DATABASE_URL is provided (Vercel deployment)
@@ -22,8 +23,7 @@ if (process.env.DATABASE_URL) {
       idle: 10000
     },
   });
-} else {
-  // Local development configuration
+} else { // Local development configuration
   sequelize = new Sequelize(
     process.env.DB_NAME || 'serene_flow_db',
     process.env.DB_USER || 'postgres',
@@ -38,30 +38,26 @@ if (process.env.DATABASE_URL) {
         min: 0,
         acquire: 30000,
         idle: 10000
-      },
-    // Add connection retry logic
-    retry: {
-      max: 5,
-      match: [
-        /ConnectionRefusedError/,
-        /Connection terminated unexpectedly/,
-        /Connection refused/,
-      ]
+      }
+    }
+  );
+}
+
+// Export the sequelize instance and initialization function
+module.exports = {
+  sequelize,
+  initDatabase: async () => {
+    try {
+      await sequelize.authenticate();
+      console.log('✅ Connection to the database has been established successfully.');
+      global.dbConnected = true;
+      return true;
+    } catch (error) {
+      console.error('⚠️ Unable to connect to the database:', error.message);
+      console.log('❗ NOTE: The application will run with limited functionality.');
+      console.log('📝 To fix: Please make sure PostgreSQL is installed and running, and update .env file with correct credentials.');
+      global.dbConnected = false;
+      return false;
     }
   }
-);
-
-// Test the connection
-const testConnection = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('Connection to the database has been established successfully.');
-  } catch (error) {
-    console.error('Unable to connect to the database:', error);
-    console.error('Please make sure PostgreSQL is installed and running, and the database is created.');
-  }
 };
-
-testConnection();
-
-module.exports = sequelize;

@@ -10,14 +10,20 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "vercel-build": "node vercel-setup.js && node db-config-utility.js && node vercel-migrate.js && vite build",
-    "preinstall": "node vercel-setup.js"
-  },
-  "dependencies": {
+    "preinstall": "node vercel-setup.js",
+    "verify": "node verify-deployment.js",
+    "verify:local": "node verify-deployment.js",
+    "verify:vercel": "node verify-deployment.js --vercel",
+    "start:full": "pwsh -File ./start-dev.ps1"
+  },  "dependencies": {
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
     "@radix-ui/react-aspect-ratio": "^1.1.0",
     "@radix-ui/react-avatar": "^1.1.0",
+    "chalk": "^5.3.0",
+    "concurrently": "^8.2.2",
+    "node-fetch": "^3.3.2",
     "@radix-ui/react-checkbox": "^1.1.1",
     "@radix-ui/react-collapsible": "^1.1.0",
     "@radix-ui/react-context-menu": "^2.2.1",

@@ -152,6 +152,40 @@ A comprehensive spa management application for appointment booking, customer man
    - Backend API: http://localhost:5000
    - API Health check: http://localhost:5000/api/health
 
+## Verification Tools
+
+The application comes with comprehensive verification tools to ensure both local and Vercel deployments are working correctly:
+
+### Quick Verification
+
+```powershell
+# Start servers and verify all components
+./start-dev.ps1
+
+# Check server status with self-healing
+./check-servers.ps1 -SelfHeal
+
+# Run comprehensive verification
+./verify-all.ps1
+```
+
+### Environment Comparison
+
+```powershell
+# Compare local and Vercel environments
+./master-verify.ps1 -CompareEnvironments
+
+# Generate HTML comparison report
+./master-verify.ps1 -CompareEnvironments -GenerateHtmlReport
+```
+
+### Verification Documentation
+
+For detailed information on verification tools:
+- See `VERIFICATION_README.md` for all available verification tools
+- See `ENVIRONMENT_COMPARISON.md` for environment comparison details
+- See `VERIFICATION_GUIDE.md` for step-by-step verification process
+
 ## API Documentation
 
 The backend provides the following REST endpoints:
