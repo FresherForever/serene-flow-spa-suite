@@ -13,19 +13,17 @@ try {
   // Ensure all necessary build dependencies are installed
   console.log('Installing required build dependencies...');
   try {
-    execSync('npm install --no-save @vitejs/plugin-react-swc tailwindcss autoprefixer postcss', { stdio: 'inherit' });
+    execSync('npm install --no-save tailwindcss autoprefixer postcss', { stdio: 'inherit' });
     console.log('Dependencies installed successfully.');
   } catch (depError) {
     console.error('Error installing dependencies:', depError.message);
     // Continue anyway
   }
-
   // Create a minimal vite config that works with Vercel
   console.log('Creating optimized Vite config for Vercel...');
   const viteConfig = `
 // Optimized Vite configuration for Vercel
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-swc';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -33,7 +31,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig({
-  plugins: [react()],
+  // No plugins to avoid dependency issues
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -80,11 +78,11 @@ export default {
 }`;
 
   fs.writeFileSync('postcss.config.js', postcssConfig);
-  console.log('PostCSS config created.');
-  // Run the actual build
+  console.log('PostCSS config created.');  // Run the actual build
   console.log('Running Vite build...');
   try {
-    execSync('npx vite build', { stdio: 'inherit' });
+    // Use --force flag to bypass package checks
+    execSync('npx vite build --emptyOutDir --force', { stdio: 'inherit' });
     console.log('Build completed successfully!');
   } catch (buildError) {
     console.error('Error during Vite build:');
