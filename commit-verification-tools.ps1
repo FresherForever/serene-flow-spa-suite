@@ -1,30 +1,39 @@
 #!/bin/pwsh
-# Script to commit verification tools to Git
+# Updated Script to commit verification tools to Git (May 22, 2025)
+# This script handles all the enhanced verification tools
 
 # Set console colors
 $infoColor = "Cyan"
 $successColor = "Green"
 $errorColor = "Red"
 $commandColor = "Yellow"
+$highlightColor = "Magenta"
 
 Write-Host "=====================================================" -ForegroundColor $infoColor
-Write-Host "COMMITTING VERIFICATION TOOLS TO GIT" -ForegroundColor $infoColor
+Write-Host "COMMITTING ENHANCED VERIFICATION TOOLS TO GIT" -ForegroundColor $infoColor
 Write-Host "=====================================================" -ForegroundColor $infoColor
+
+# Get date for commit message
+$date = Get-Date -Format "yyyy-MM-dd"
 
 # List new/modified files
 Write-Host "`nVerification files to be committed:" -ForegroundColor $infoColor
-Write-Host "  - verify-all.ps1"
+Write-Host "  - verify-all.ps1" -ForegroundColor $highlightColor
 Write-Host "  - verify-deployment.ps1"
 Write-Host "  - verify-database.ps1"
 Write-Host "  - verify-report.ps1"
 Write-Host "  - test-api.ps1"
-Write-Host "  - verify-deployment.js"
+Write-Host "  - verify-deployment.js" -ForegroundColor $highlightColor
+Write-Host "  - verify-deployed.js" -ForegroundColor $highlightColor
+Write-Host "  - verify-wrapper.js" -ForegroundColor $highlightColor
 Write-Host "  - VERIFICATION_GUIDE.md"
 Write-Host "  - VERIFICATION_README.md"
 Write-Host "  - ENVIRONMENT_COMPARISON.md"
+Write-Host "  - VERIFICATION_TROUBLESHOOTING.md" -ForegroundColor $highlightColor
+Write-Host "  - verification-tools-summary.md" -ForegroundColor $highlightColor
+Write-Host "  - package.json (updated scripts)" -ForegroundColor $highlightColor
 Write-Host "  - src/components/DeploymentStatus.tsx"
 Write-Host "  - src/components/EnvironmentInfo.tsx"
-Write-Host "  - src/pages/Dashboard.tsx (updated)"
 
 # Confirm with user
 $confirm = Read-Host "`nDo you want to commit these changes? (y/n)"
@@ -41,16 +50,27 @@ git add verify-database.ps1
 git add verify-report.ps1
 git add test-api.ps1
 git add verify-deployment.js
+git add verify-deployed.js
+git add verify-wrapper.js
 git add VERIFICATION_GUIDE.md
 git add VERIFICATION_README.md
+git add VERIFICATION_TROUBLESHOOTING.md
 git add ENVIRONMENT_COMPARISON.md
+git add verification-tools-summary.md
+git add package.json
 git add src/components/DeploymentStatus.tsx
 git add src/components/EnvironmentInfo.tsx
-git add src/pages/Dashboard.tsx
 
 # Commit
 Write-Host "`nCommitting changes..." -ForegroundColor $commandColor
-git commit -m "Add comprehensive verification tools for local and Vercel environments"
+git commit -m "Enhance verification system (May 22, 2025)
+
+- Added dependency-aware verification wrapper
+- Improved Vercel deployment verification
+- Created comprehensive verification toolchain
+- Added automatic error recovery features
+- Enhanced deployment troubleshooting documentation
+- Updated verification guide with new tools"
 
 # Push (optional)
 $push = Read-Host "`nDo you want to push these changes to remote? (y/n)"

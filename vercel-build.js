@@ -626,26 +626,148 @@ export default {
   }
   
   const emergencyHtml = `<!DOCTYPE html>
-<html>
-  <head>
-    <title>Serene Flow Spa - Deployment Error</title>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serene Flow Spa Suite - Maintenance</title>
     <style>
-      body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 2rem; }
-      .error { color: #d32f2f; border-left: 4px solid #d32f2f; padding-left: 1rem; }
-      pre { background: #f5f5f5; padding: 1rem; overflow: auto; }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #334155;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.92);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 650px;
+            width: 100%;
+        }
+        h1 {
+            color: #0f766e;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        p {
+            line-height: 1.7;
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+        .status {
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #0f766e;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        .info {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 30px;
+        }
+        .error {
+            background-color: #fff1f2;
+            border-left: 4px solid #be123c;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            text-align: left;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .logo {
+            margin-bottom: 20px;
+            width: 80px;
+            height: 80px;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #0f766e;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 15px;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background-color: #115e59;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-size: 12px;
+            font-family: monospace;
+        }
     </style>
-  </head>
-  <body>
-    <h1>Serene Flow Spa Suite</h1>
-    <p>The build process encountered an error. Please check the build logs.</p>
-    <div class="error">
-      <h3>Error Details</h3>
-      <pre>${error.message || 'Unknown error'}</pre>
+</head>
+<body>
+    <div class="container">
+        <svg class="logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#0f766e" stroke-width="2"/>
+            <path d="M8.5 15C10.5 18 13.5 18 15.5 15" stroke="#0f766e" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M8.5 8.5C8.5 7.5 9 7 10 7C11 7 11.5 7.5 11.5 8.5C11.5 9.5 11 10 10 10C9 10 8.5 9.5 8.5 8.5Z" fill="#0f766e"/>
+            <path d="M15.5 8.5C15.5 7.5 15 7 14 7C13 7 12.5 7.5 12.5 8.5C12.5 9.5 13 10 14 10C15 10 15.5 9.5 15.5 8.5Z" fill="#0f766e"/>
+        </svg>
+        <h1>Serene Flow Spa Suite</h1>
+        <p>We're performing scheduled maintenance to improve your experience. Our team is working to bring the site back online as soon as possible.</p>
+        
+        <div class="status">
+            <strong>Status:</strong> Maintenance Mode<br>
+            <strong>Expected Resolution:</strong> <span id="time">Shortly</span><br>
+            <strong>Last Updated:</strong> ${new Date().toLocaleString()}
+        </div>
+        
+        <p>Thank you for your patience.</p>
+        
+        <div class="error">
+            <strong>Technical Details:</strong>
+            <pre>${error.message || 'Unknown build error'}</pre>
+        </div>
+        
+        <a href="/api/health" class="btn">Check API Status</a>
+        
+        <div class="info">
+            <p>Need immediate assistance? Please contact our support team at <strong>support@sereneflowspa.com</strong></p>
+        </div>
     </div>
-    <p>Built at: ${new Date().toISOString()}</p>
-  </body>
+    
+    <script>
+        // Update the time dynamically
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('time').textContent = 'Within 30 minutes (Current time: ' + hours + ':' + minutes + ')';
+        }
+        updateTime();
+        setInterval(updateTime, 60000);
+        
+        // Attempt to check API status
+        fetch('/api/health')
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.status === 'OK') {
+                    document.querySelector('.status').innerHTML += '<br><strong>API Status:</strong> <span style="color: #22c55e;">Online</span>';
+                }
+            })
+            .catch(() => {
+                document.querySelector('.status').innerHTML += '<br><strong>API Status:</strong> <span style="color: #ef4444;">Offline</span>';
+            });
+    </script>
+</body>
 </html>`;
   
   fs.writeFileSync(path.join('dist', 'index.html'), emergencyHtml);

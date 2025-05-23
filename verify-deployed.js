@@ -17,33 +17,41 @@ async function checkEndpoint(endpoint, name, expectedStatus = 200) {
   try {
     console.log(`🔄 Checking ${name}...`);
     const startTime = Date.now();
-    const response = await fetch(url, { 
-      method: 'GET',
-      headers: { 'Accept': 'application/json' }
-    });
-    const endTime = Date.now();
     
-    if (response.status === expectedStatus) {
-      console.log(`✅ ${name}: OK (${endTime - startTime}ms)`);
-      if (verbose) {
-        try {
-          const data = await response.json();
-          console.log(JSON.stringify(data, null, 2));
-        } catch (e) {
-          console.log('Response is not JSON');
+    try {
+      const response = await fetch(url, { 
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        timeout: 10000, // 10 second timeout
+      });
+      const endTime = Date.now();
+      
+      if (response.status === expectedStatus) {
+        console.log(`✅ ${name}: OK (${endTime - startTime}ms)`);
+        if (verbose) {
+          try {
+            const data = await response.json();
+            console.log(JSON.stringify(data, null, 2));
+          } catch (e) {
+            console.log('Response is not JSON');
+          }
         }
-      }
-      return true;
-    } else {
-      console.error(`❌ ${name}: Failed with status ${response.status}`);
-      if (verbose) {
-        try {
-          const text = await response.text();
-          console.log(text.substring(0, 500) + (text.length > 500 ? '...' : ''));
-        } catch (e) {
-          console.log('Could not read response');
+        return true;
+      } else {
+        console.error(`❌ ${name}: Failed with status ${response.status}`);
+        if (verbose) {
+          try {
+            const text = await response.text();
+            console.log(text.substring(0, 500) + (text.length > 500 ? '...' : ''));
+          } catch (e) {
+            console.log('Could not read response');
+          }
         }
+        return false;
       }
+    } catch (fetchError) {
+      console.error(`❌ ${name}: Connection error - Is the server running?`);
+      console.error(`   Details: ${fetchError.message}`);
       return false;
     }
   } catch (error) {

@@ -1,12 +1,19 @@
 #!/bin/pwsh
-# Comprehensive verification script that launches all verification tools
+# Master Verification Script for Serene Flow Spa Suite
+# This comprehensive script coordinates all verification tools and provides a detailed report
+# May 22, 2025 - Enhanced with complete deployment verification
 
 param (
     [switch]$Vercel,
     [string]$VercelUrl = $env:VERCEL_URL,
     [switch]$GenerateReport,
     [switch]$SkipServerCheck,
-    [switch]$QuickCheck
+    [switch]$QuickCheck,
+    [switch]$FixIssues,
+    [switch]$Local,
+    [switch]$Database, 
+    [switch]$All,
+    [switch]$InstallDeps
 )
 
 # Set console colors and styles

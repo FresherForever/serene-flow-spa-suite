@@ -47,3 +47,4 @@ config.private.js
 .temp
 build/
 coverage/
+.vercel

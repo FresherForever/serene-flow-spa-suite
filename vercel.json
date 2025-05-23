@@ -3,8 +3,10 @@
   "buildCommand": "node vercel-build.js",
   "outputDirectory": "dist",
   "rewrites": [
-    { "source": "/api/health", "destination": "/api" },
-    { "source": "/api/(.*)", "destination": "/api/[...catchAll]" },
+    { "source": "/api/health", "destination": "/api/health.js" },
+    { "source": "/api/environment", "destination": "/api/environment.js" },
+    { "source": "/environment", "destination": "/api/environment.js" },
+    { "source": "/api/(.*)", "destination": "/api/[...catchAll].js" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "env": {
@@ -15,5 +17,19 @@
       "memory": 1024,
       "maxDuration": 10
     }
-  }
+  },
+  "github": {
+    "enabled": true,
+    "silent": false
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" }
+      ]
+    }
+  ]
 }
