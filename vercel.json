@@ -9,6 +9,12 @@
     { "source": "/api/(.*)", "destination": "/api/[...catchAll].js" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
+  "build": {
+    "env": {
+      "ENABLE_FALLBACK": "true",
+      "BUILD_MODE": "production"
+    }
+  },
   "env": {
     "NODE_ENV": "production"
   },
