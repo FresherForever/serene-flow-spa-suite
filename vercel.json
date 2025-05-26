@@ -14,9 +14,9 @@
       "ENABLE_FALLBACK": "true",
       "BUILD_MODE": "production"
     }
-  },
-  "env": {
-    "NODE_ENV": "production"
+  },  "env": {
+    "NODE_ENV": "production",
+    "DATABASE_URL": "postgresql://spa_admin:${DB_PASSWORD}@140.245.229.160:5432/vitaminspa_db"
   },
   "functions": {
     "api/*.js": {
