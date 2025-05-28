@@ -1,8 +1,52 @@
-# Welcome to your Lovable project
+# Welcome to Serene Flow Spa Suite
 
 ## Project info
 
 **URL**: https://lovable.dev/projects/b6bea204-80c5-420f-b65f-b8ebb8afb703
+
+## Project Structure
+
+After reorganization, the project follows this structure:
+
+```
+/
+├── api/                    # Serverless API functions for Vercel deployment
+├── backend/                # Backend server (Node.js/Express)
+│   ├── src/                # Backend source code
+│   │   ├── config/         # Configuration files
+│   │   ├── controllers/    # Route controllers
+│   │   ├── middleware/     # Express middleware
+│   │   ├── models/         # Sequelize models for PostgreSQL
+│   │   ├── routes/         # API routes
+│   │   ├── services/       # Business logic
+│   │   └── utils/          # Utility functions
+├── config/                 # Configuration files
+│   └── docker/             # Docker configuration files
+├── docs/                   # Project documentation
+├── public/                 # Static assets
+├── scripts/                # Project scripts
+│   ├── database/           # Database migration scripts
+│   ├── deployment/         # Deployment scripts
+│   ├── utils/              # Utility scripts
+│   └── verification/       # Verification scripts
+├── src/                    # Frontend source code (React/Vite)
+│   ├── components/         # React components
+│   ├── hooks/              # Custom React hooks
+│   ├── integrations/       # Third-party integrations
+│   ├── lib/                # Shared libraries
+│   └── pages/              # Page components
+```
+
+## Recent Updates
+
+The project has been reorganized to improve maintainability and ease of development:
+
+1. **Streamlined Structure**: Logically organized scripts, configuration, and documentation
+2. **Consistent Database Access**: Centralized database connection with PostgreSQL
+3. **Improved Documentation**: Added project structure guide and reorganized documentation
+4. **Updated Scripts**: Modernized development workflows and deployment processes
+
+See `docs/PROJECT_STRUCTURE.md` for details on the new organization.
 
 ## How can I edit this code?
 
@@ -20,6 +64,40 @@ If you want to work locally using your own IDE, you can clone this repo and push
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
+## Getting Started
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up environment variables:
+   Create a `.env` file with the following:
+   ```
+   PORT=5000
+   DATABASE_URL=postgresql://user:password@hostname:5432/database_name
+   ```
+4. Start the development environment:
+   ```bash
+   npm run start:full
+   ```
+
+## Available Scripts
+
+- `npm run dev` - Start the frontend development server
+- `npm run build` - Build the frontend for production
+- `npm run start:full` - Start both frontend and backend servers
+- `npm run migrate` - Run database migrations
+- `npm run db:check` - Verify database connection and tables
+
+## Database
+
+The application uses PostgreSQL for data storage. You can run migrations with:
+
+```bash
+npm run migrate
+```
+
 ## Deployment
 
 The Serene Flow Spa Suite is configured for easy deployment to Vercel:
@@ -28,6 +106,8 @@ The Serene Flow Spa Suite is configured for easy deployment to Vercel:
 # Deploy to Vercel with one command
 npm run deploy
 ```
+
+See documentation in the `docs` folder for detailed deployment instructions.
 
 This will run the automated deployment process including pre-deployment verification.
 

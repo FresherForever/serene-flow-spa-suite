@@ -1,0 +1,455 @@
+#!/bin/pwsh
+# Enhanced Server Status Verification Script for Serene Flow Spa Suite
+
+param (
+    [switch]$StartIfNeeded,   # Start servers if they're not running
+    [switch]$Detailed,        # Show detailed information about the servers
+    [switch]$QuietSuccess,    # Only output errors, not success messages
+    [switch]$KillExisting,    # Kill existing server processes before starting new ones
+    [switch]$SelfHeal,        # Attempt to automatically fix common issues
+    [switch]$ForceRestart     # Force restart servers regardless of their status
+)
+
+# Set colors for better readability
+$infoColor = "Cyan" 
+$successColor = "Green"
+$warningColor = "Yellow"
+$errorColor = "Red"
+$healingColor = "Magenta"
+
+# Define self-healing variables
+$selfHealing = $SelfHeal # Set to true to enable self-healing capabilities
+$attemptedHealing = $false # Track if we've attempted healing
+$healingLog = @() # Log of healing actions
+
+if (-not $QuietSuccess) {
+    Write-Host "=======================================================" -ForegroundColor $infoColor
+    Write-Host "SERENE FLOW SPA SUITE - SERVER STATUS CHECK" -ForegroundColor $infoColor
+    if ($SelfHeal) {
+        Write-Host "WITH SELF-HEALING CAPABILITIES" -ForegroundColor $healingColor
+    }
+    Write-Host "=======================================================" -ForegroundColor $infoColor
+    Write-Host ""
+}
+
+# Function to test an endpoint with expanded diagnostics
+function Test-Endpoint {
+    param (
+        [string] $Name,
+        [string] $Url,
+        [switch] $ExpectJson,
+        [switch] $Detailed
+    )
+    
+    Write-Host "Testing $Name at $Url..." -NoNewline
+    
+    $startTime = Get-Date
+    try {
+        $response = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
+        $endTime = Get-Date
+        $responseTimeMs = [math]::Round(($endTime - $startTime).TotalMilliseconds)
+        
+        Write-Host "✅ OK ($($response.StatusCode)) - ${responseTimeMs}ms" -ForegroundColor $successColor
+        
+        # Show headers if detailed mode
+        if ($Detailed) {
+            Write-Host "  Headers:" -ForegroundColor $infoColor
+            foreach ($header in $response.Headers.GetEnumerator() | Sort-Object -Property Key) {
+                Write-Host "    $($header.Key): $($header.Value)" -ForegroundColor $infoColor
+            }
+        }
+        
+        if ($ExpectJson) {
+            try {
+                $json = $response.Content | ConvertFrom-Json
+                
+                if ($Detailed) {
+                    Write-Host "  Response:" -ForegroundColor $infoColor
+                    $json | ConvertTo-Json -Depth 2 | ForEach-Object { Write-Host "    $_" -ForegroundColor $infoColor }
+                }
+                
+                return @{
+                    Success = $true
+                    StatusCode = $response.StatusCode
+                    ResponseTimeMs = $responseTimeMs
+                    Content = $json
+                    RawContent = $response.Content
+                }
+            } catch {
+                Write-Host "  Warning: Expected JSON but received non-JSON response" -ForegroundColor $warningColor
+                if ($Detailed) {
+                    Write-Host "  Raw Response:" -ForegroundColor $infoColor
+                    Write-Host "    $($response.Content)" -ForegroundColor $infoColor
+                }
+                
+                return @{
+                    Success = $true
+                    StatusCode = $response.StatusCode
+                    ResponseTimeMs = $responseTimeMs
+                    Content = $null
+                    RawContent = $response.Content
+                }
+            }
+        } else {
+            return @{
+                Success = $true
+                StatusCode = $response.StatusCode
+                ResponseTimeMs = $responseTimeMs
+                Content = $null
+                RawContent = $response.Content
+            }
+        }
+    }
+    catch {
+        $endTime = Get-Date
+        $responseTimeMs = [math]::Round(($endTime - $startTime).TotalMilliseconds)
+        
+        Write-Host "❌ Failed" -ForegroundColor $errorColor
+        Write-Host "  Error: $($_.Exception.Message)" -ForegroundColor $errorColor
+        
+        return @{
+            Success = $false
+            StatusCode = 0
+            ResponseTimeMs = $responseTimeMs
+            Error = $_.Exception.Message
+            Content = $null
+            RawContent = $null
+        }
+    }
+}
+
+# Function to check process on port with more details
+function Get-ProcessOnPort {
+    param (
+        [int] $Port,
+        [switch] $Detailed
+    )
+    
+    try {
+        # Get all TCP connections with this port
+        $processInfo = netstat -ano | Select-String "(:|\s)$Port\s" | Select-String "LISTENING" | Out-String
+        
+        if ($processInfo -match '(\d+)$') {
+            $processId = $matches[1]
+            $process = Get-Process -Id $processId -ErrorAction SilentlyContinue
+            
+            if ($process) {
+                # Get command line for the process if detailed info is requested
+                $cmdLine = $null
+                if ($Detailed) {
+                    try {
+                        $wmiObj = Get-WmiObject -Class Win32_Process -Filter "ProcessId = $processId" -ErrorAction SilentlyContinue
+                        if ($wmiObj) {
+                            $cmdLine = $wmiObj.CommandLine
+                        }
+                    } catch {
+                        $cmdLine = "Could not retrieve command line: $($_.Exception.Message)"
+                    }
+                }
+                
+                # Get process start time and uptime
+                $startTime = $process.StartTime
+                $uptime = (Get-Date) - $startTime
+                $uptimeStr = "{0:D2}:{1:D2}:{2:D2}" -f $uptime.Hours, $uptime.Minutes, $uptime.Seconds
+                
+                # Get working directory
+                $workingDir = $null
+                try {
+                    $wmiObj = Get-WmiObject -Class Win32_Process -Filter "ProcessId = $processId" -ErrorAction SilentlyContinue
+                    if ($wmiObj) {
+                        $workingDir = $wmiObj.WorkingSetSize
+                    }
+                } catch {
+                    # Ignore error
+                }
+                
+                return @{
+                    ProcessId = $processId
+                    ProcessName = $process.ProcessName
+                    Path = $process.Path
+                    CommandLine = $cmdLine
+                    StartTime = $startTime
+                    Uptime = $uptimeStr
+                    WorkingDirectory = $workingDir
+                    IsRunning = $true
+                }
+            }
+        }
+    } catch {
+        if ($Detailed) {
+            Write-Host "  Error checking process: $($_.Exception.Message)" -ForegroundColor $errorColor
+        }
+    }
+    
+    return @{ 
+        ProcessId = $null
+        ProcessName = $null
+        Path = $null
+        CommandLine = $null
+        StartTime = $null
+        Uptime = $null
+        WorkingDirectory = $null
+        IsRunning = $false
+    }
+}
+
+# Function to perform self-healing
+function Invoke-ServerHealing {
+    param (
+        [string] $ServerType,    # frontend or backend
+        [object] $ProcessInfo,   # Process info from Get-ProcessOnPort
+        [bool] $IsResponding,    # Is server responding to requests
+        [string] $ErrorMessage   # Error message if any
+    )
+    
+    if (-not $selfHealing) { return $false }
+    
+    $global:attemptedHealing = $true
+    
+    Write-Host "`n[🔧] Attempting to heal $ServerType server..." -ForegroundColor $healingColor
+    
+    $healingSuccessful = $false
+    
+    # If the process is running but not responding
+    if ($ProcessInfo.IsRunning -and -not $IsResponding) {
+        Write-Host "  Process is running but not responding - attempting restart" -ForegroundColor $healingColor
+        
+        # Try to kill the existing process
+        try {
+            if ($ProcessInfo.ProcessId) {
+                Stop-Process -Id $ProcessInfo.ProcessId -Force -ErrorAction Stop
+                Write-Host "  ✅ Successfully stopped process (PID: $($ProcessInfo.ProcessId))" -ForegroundColor $successColor
+                $healingLog += "Stopped non-responsive $ServerType process (PID: $($ProcessInfo.ProcessId))"
+                
+                # Wait a moment for the process to fully terminate
+                Start-Sleep -Seconds 2
+                
+                # Start new server
+                if ($ServerType -eq "frontend") {
+                    Write-Host "  Starting new frontend server process..." -ForegroundColor $healingColor
+                    Start-Process -FilePath "pwsh" -ArgumentList "-Command", "cd '$PSScriptRoot'; npm run dev" -WindowStyle Normal -ErrorAction Stop
+                    $healingSuccessful = $true
+                    $healingLog += "Started new frontend server process"
+                } elseif ($ServerType -eq "backend") {
+                    Write-Host "  Starting new backend server process..." -ForegroundColor $healingColor
+                    Start-Process -FilePath "pwsh" -ArgumentList "-Command", "cd '$PSScriptRoot\backend'; npm run dev" -WindowStyle Normal -ErrorAction Stop
+                    $healingSuccessful = $true
+                    $healingLog += "Started new backend server process"
+                }
+                
+                # Wait for server to start
+                Write-Host "  Waiting for server to initialize (15 seconds)..." -ForegroundColor $infoColor
+                Start-Sleep -Seconds 15
+            }
+        } catch {
+            Write-Host "  ❌ Failed to restart process: $($_.Exception.Message)" -ForegroundColor $errorColor
+            $healingLog += "Failed to restart $ServerType: $($_.Exception.Message)"
+        }
+    }
+    # If the process is not running at all
+    elseif (-not $ProcessInfo.IsRunning) {
+        Write-Host "  Process is not running - attempting to start" -ForegroundColor $healingColor
+        
+        # Start new server
+        try {
+            if ($ServerType -eq "frontend") {
+                Write-Host "  Starting frontend server..." -ForegroundColor $healingColor
+                Start-Process -FilePath "pwsh" -ArgumentList "-Command", "cd '$PSScriptRoot'; npm run dev" -WindowStyle Normal -ErrorAction Stop
+                $healingSuccessful = $true
+                $healingLog += "Started frontend server process"
+            } elseif ($ServerType -eq "backend") {
+                Write-Host "  Starting backend server..." -ForegroundColor $healingColor
+                Start-Process -FilePath "pwsh" -ArgumentList "-Command", "cd '$PSScriptRoot\backend'; npm run dev" -WindowStyle Normal -ErrorAction Stop
+                $healingSuccessful = $true
+                $healingLog += "Started backend server process"
+            }
+            
+            # Wait for server to start
+            Write-Host "  Waiting for server to initialize (15 seconds)..." -ForegroundColor $infoColor
+            Start-Sleep -Seconds 15
+        } catch {
+            Write-Host "  ❌ Failed to start process: $($_.Exception.Message)" -ForegroundColor $errorColor
+            $healingLog += "Failed to start $ServerType: $($_.Exception.Message)"
+        }
+    }
+    
+    return $healingSuccessful
+}
+
+# Check if ports are in use
+$frontendProcess = Get-ProcessOnPort -Port 5173 -Detailed:$Detailed
+$backendProcess = Get-ProcessOnPort -Port 5000 -Detailed:$Detailed
+
+# Check frontend
+Write-Host "[1/2] Checking frontend server..." -ForegroundColor $infoColor
+
+if ($frontendProcess.IsRunning) {
+    Write-Host "  Frontend process found: $($frontendProcess.ProcessName) (PID: $($frontendProcess.ProcessId))" -ForegroundColor $infoColor
+    if ($Detailed) {
+        if ($frontendProcess.CommandLine) {
+            Write-Host "  Command line: $($frontendProcess.CommandLine)" -ForegroundColor $infoColor
+        }
+        Write-Host "  Uptime: $($frontendProcess.Uptime)" -ForegroundColor $infoColor
+    }
+} else {
+    Write-Host "  No process found using port 5173" -ForegroundColor $warningColor
+}
+
+$frontendResult = Test-Endpoint -Name "Frontend" -Url "http://localhost:5173"
+
+# Check backend
+Write-Host "`n[2/2] Checking backend server..." -ForegroundColor $infoColor
+
+if ($backendProcess.IsRunning) {
+    Write-Host "  Backend process found: $($backendProcess.ProcessName) (PID: $($backendProcess.ProcessId))" -ForegroundColor $infoColor
+} else {
+    Write-Host "  No process found using port 5000" -ForegroundColor $warningColor
+}
+
+$backendResult = Test-Endpoint -Name "Backend API" -Url "http://localhost:5000/api/health" -ExpectJson
+
+# Check backend API endpoints if backend is up
+$apiEndpointsChecked = 0
+$apiEndpointsOk = 0
+
+if ($backendResult.Success) {
+    Write-Host "`n[+] Checking core API endpoints..." -ForegroundColor $infoColor
+    
+    $endpoints = @(
+        @{ Name = "Services API"; Path = "/api/services" },
+        @{ Name = "Staff API"; Path = "/api/staff" },
+        @{ Name = "Clients API"; Path = "/api/clients" },
+        @{ Name = "Appointments API"; Path = "/api/appointments" }
+    )
+    
+    foreach ($endpoint in $endpoints) {
+        $apiEndpointsChecked++
+        $result = Test-Endpoint -Name $endpoint.Name -Url "http://localhost:5000$($endpoint.Path)"
+        
+        if ($result.Success) {
+            $apiEndpointsOk++
+        }
+    }
+}
+
+# Attempt self-healing if needed
+if ($selfHealing -or $ForceRestart) {
+    # Check if frontend needs healing
+    if (((-not $frontendResult.Success) -or $ForceRestart) -and (-not $frontendFixed)) {
+        $frontendFixed = Invoke-ServerHealing -ServerType "frontend" -ProcessInfo $frontendProcess -IsResponding $frontendResult.Success -ErrorMessage $frontendResult.Error
+        
+        if ($frontendFixed) {
+            # Re-check frontend
+            $frontendProcess = Get-ProcessOnPort -Port 5173
+            $frontendResult = Test-Endpoint -Name "Frontend (after healing)" -Url "http://localhost:5173"
+        }
+    }
+    
+    # Check if backend needs healing
+    if (((-not $backendResult.Success) -or $ForceRestart) -and (-not $backendFixed)) {
+        $backendFixed = Invoke-ServerHealing -ServerType "backend" -ProcessInfo $backendProcess -IsResponding $backendResult.Success -ErrorMessage $backendResult.Error
+        
+        if ($backendFixed) {
+            # Re-check backend
+            $backendProcess = Get-ProcessOnPort -Port 5000
+            $backendResult = Test-Endpoint -Name "Backend API (after healing)" -Url "http://localhost:5000/api/health" -ExpectJson
+        }
+    }
+}
+
+# Show summary
+Write-Host "`n=======================================================" -ForegroundColor $infoColor
+Write-Host "SERVER STATUS SUMMARY" -ForegroundColor $infoColor
+Write-Host "=======================================================" -ForegroundColor $infoColor
+Write-Host ""
+
+Write-Host "Frontend Server: " -NoNewline
+if ($frontendResult.Success) {
+    Write-Host "RUNNING ✅" -ForegroundColor $successColor
+    Write-Host "  URL: http://localhost:5173"
+    Write-Host "  Response time: $($frontendResult.ResponseTimeMs)ms"
+} else {
+    Write-Host "NOT RESPONDING ❌" -ForegroundColor $errorColor
+    if ($frontendProcess.IsRunning) {
+        Write-Host "  Process is running but not responding. Check for errors." -ForegroundColor $warningColor
+        Write-Host "  Process: $($frontendProcess.ProcessName) (PID: $($frontendProcess.ProcessId))"
+    } else {
+        Write-Host "  No process found running on port 5173" -ForegroundColor $errorColor
+    }
+}
+
+Write-Host ""
+Write-Host "Backend Server: " -NoNewline
+if ($backendResult.Success) {
+    Write-Host "RUNNING ✅" -ForegroundColor $successColor
+    Write-Host "  URL: http://localhost:5000"
+    Write-Host "  Response time: $($backendResult.ResponseTimeMs)ms"
+    Write-Host "  API Endpoints: $apiEndpointsOk/$apiEndpointsChecked OK"
+} else {
+    Write-Host "NOT RESPONDING ❌" -ForegroundColor $errorColor
+    if ($backendProcess.IsRunning) {
+        Write-Host "  Process is running but not responding. Check for errors." -ForegroundColor $warningColor
+        Write-Host "  Process: $($backendProcess.ProcessName) (PID: $($backendProcess.ProcessId))"
+    } else {
+        Write-Host "  No process found running on port 5000" -ForegroundColor $errorColor
+    }
+}
+
+# If healing was attempted, show healing summary
+if ($attemptedHealing) {
+    Write-Host "`n=======================================================" -ForegroundColor $healingColor
+    Write-Host "SELF-HEALING ACTIONS" -ForegroundColor $healingColor
+    Write-Host "=======================================================" -ForegroundColor $healingColor
+    
+    foreach ($action in $healingLog) {
+        Write-Host "• $action" -ForegroundColor $infoColor
+    }
+}
+
+# Overall status and next steps
+Write-Host ""
+if ($frontendResult.Success -and $backendResult.Success) {
+    Write-Host "✅ All servers are running correctly!" -ForegroundColor $successColor
+    Write-Host "You can now use the application and run the verification scripts."
+    
+    # Open application if not already open
+    $openBrowser = Read-Host "Open application in browser? (y/n)"
+    if ($openBrowser -eq 'y') {
+        Start-Process "http://localhost:5173"
+    }
+    
+    # Suggest verification
+    Write-Host "`nRun comprehensive verification?"
+    $runVerify = Read-Host "Run ./verify-all.ps1? (y/n)"
+    if ($runVerify -eq 'y') {
+        & "$PSScriptRoot\verify-all.ps1"
+    }
+} else {
+    Write-Host "❌ One or more servers are not running correctly." -ForegroundColor $errorColor
+    
+    Write-Host "`nTroubleshooting steps:" -ForegroundColor $warningColor
+    
+    if (-not $frontendResult.Success) {
+        Write-Host "  1. Start frontend server with: npm run dev" -ForegroundColor $infoColor
+    }
+    
+    if (-not $backendResult.Success) {
+        Write-Host "  2. Start backend server with: cd backend && npm run dev" -ForegroundColor $infoColor
+    }
+    
+    Write-Host "  3. Or restart both servers with: ./start-dev.ps1" -ForegroundColor $infoColor
+    
+    # Ask if user wants to restart servers
+    if (-not $attemptedHealing) {
+        Write-Host ""
+        $restartServers = Read-Host "Restart servers now? (y/n)"
+        if ($restartServers -eq 'y') {
+            & "$PSScriptRoot\start-dev.ps1"
+        } elseif (-not $selfHealing) {
+            Write-Host "`nTip: You can use -SelfHeal switch to attempt automatic healing of server issues." -ForegroundColor $infoColor
+        }
+    }
+}
+
+# Return true if both servers are running
+return ($frontendResult.Success -and $backendResult.Success)

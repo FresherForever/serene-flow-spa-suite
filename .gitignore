@@ -7,10 +7,16 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies and build artifacts
 node_modules
 dist
 dist-ssr
 *.local
+.cache
+.temp
+build/
+coverage/
+.vercel
 
 # Editor directories and files
 .vscode/*
@@ -32,9 +38,6 @@ dist-ssr
 .env*.local
 *.pem
 
-# Supabase
-.supabase
-
 # Private configuration files
 config.private.js
 *config.private.json
@@ -42,9 +45,8 @@ config.private.js
 *credentials.json
 *_private.*
 
-# Build artifacts and cache
-.cache
-.temp
-build/
-coverage/
-.vercel
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/

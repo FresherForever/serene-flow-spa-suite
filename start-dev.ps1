@@ -12,7 +12,7 @@ Write-Host "SERENE FLOW SPA SUITE - DEVELOPMENT ENVIRONMENT STARTER" -Foreground
 Write-Host "=======================================================" -ForegroundColor $infoColor
 Write-Host "Starting date: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" -ForegroundColor $infoColor
 Write-Host "This script will start both frontend and backend servers for development"
-Write-Host "If there are issues, you can check server status with ./check-servers.ps1"
+Write-Host "If there are issues, you can check server status with ./scripts/utils/check-servers.ps1"
 
 # Function to check if a port is in use
 function Test-PortInUse {
