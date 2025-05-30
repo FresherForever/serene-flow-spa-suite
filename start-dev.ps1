@@ -19,9 +19,6 @@ function Test-PortInUse {
     param (
         [int] $Port
     )
-    
-    $inUse = $false
-    
     try {
         $listener = New-Object System.Net.Sockets.TcpListener([System.Net.IPAddress]::Loopback, $Port)
         $listener.Start()
@@ -129,18 +126,21 @@ function Wait-ForServer {
 # Main script starts here
 Write-Host "`n[1/3] Checking for dependencies and ports..." -ForegroundColor $infoColor
 
-# Check for already running servers
-$frontendPortInUse = Test-PortInUse -Port 5173
-$backendPortInUse = Test-PortInUse -Port 5000
-
-if ($frontendPortInUse) {
-    Write-Host "  ℹ️ Port 5173 is in use. Attempting to free up the port..." -ForegroundColor $warningColor
-    $frontendStopped = Stop-ProcessByPort -Port 5173
+# Kill all old frontend processes on ports 3000 and 5173-5199
+$frontendPorts = @(3000) + (5173..5199)
+foreach ($port in $frontendPorts) {
+    if (Test-PortInUse -Port $port) {
+        Write-Host "  ℹ️ Port $port is in use. Attempting to free up the port..." -ForegroundColor $warningColor
+        Stop-ProcessByPort -Port $port | Out-Null
+    }
 }
+
+# Check for already running backend server
+$backendPortInUse = Test-PortInUse -Port 5000
 
 if ($backendPortInUse) {
     Write-Host "  ℹ️ Port 5000 is in use. Attempting to free up the port..." -ForegroundColor $warningColor
-    $backendStopped = Stop-ProcessByPort -Port 5000
+    Stop-ProcessByPort -Port 5000 | Out-Null
 }
 
 # Check and install NPM packages if needed

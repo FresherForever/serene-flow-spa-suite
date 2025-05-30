@@ -1,16 +1,14 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const { errorHandler, notFound } = require('./middleware/errorMiddleware');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { errorHandler, notFound } from './middleware/errorMiddleware.js';
+import appointmentRoutes from './routes/appointmentRoutes.js';
+import customerRoutes from './routes/customerRoutes.js';
+import staffRoutes from './routes/staffRoutes.js';
+import serviceRoutes from './routes/serviceRoutes.js';
 
 // Load environment variables
 dotenv.config();
-
-// Import routes
-const appointmentRoutes = require('./routes/appointmentRoutes');
-const customerRoutes = require('./routes/customerRoutes');
-const staffRoutes = require('./routes/staffRoutes');
-const serviceRoutes = require('./routes/serviceRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -75,7 +73,7 @@ app.get('/environment', environmentHandler); // For Vercel serverless compatibil
 
 // Database health check
 app.get('/api/health/database', async (req, res) => {
-  const { sequelize } = require('./config/database');
+  const { sequelize } = await import('./config/database.js');
   
   try {
     await sequelize.authenticate();
@@ -97,31 +95,4 @@ app.get('/api/health/database', async (req, res) => {
 app.use(notFound);
 app.use(errorHandler);
 
-// Check if running as a standalone server or being imported
-if (require.main === module) {
-  // Start server when running directly
-  app.listen(PORT, () => {
-    console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-  });
-}
-
-// Export a handler function for serverless environments
-const handler = (req, res) => {
-  // Remove any base path from the request URL
-  if (req.url.startsWith('/api/')) {
-    req.url = req.url.replace('/api', '');
-  }
-  
-  return app(req, res);
-};
-
-// Only start the server if this file is run directly
-if (require.main === module) {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-}
-
-// Export the Express app for use in index.js
-module.exports = app;
+export default app;

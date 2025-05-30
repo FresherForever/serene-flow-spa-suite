@@ -1,7 +1,7 @@
-const { Customer } = require('../models');
+import { Customer } from '../models/index.js';
 
 // Get all customers
-exports.getAllCustomers = async (req, res) => {
+export const getAllCustomers = async (req, res) => {
   try {
     const customers = await Customer.findAll();
     res.status(200).json(customers);
@@ -12,7 +12,7 @@ exports.getAllCustomers = async (req, res) => {
 };
 
 // Get customer by ID
-exports.getCustomerById = async (req, res) => {
+export const getCustomerById = async (req, res) => {
   try {
     const customer = await Customer.findByPk(req.params.id);
     if (!customer) {
@@ -26,7 +26,7 @@ exports.getCustomerById = async (req, res) => {
 };
 
 // Create a new customer
-exports.createCustomer = async (req, res) => {
+export const createCustomer = async (req, res) => {
   try {
     const customer = await Customer.create(req.body);
     res.status(201).json(customer);
@@ -37,7 +37,7 @@ exports.createCustomer = async (req, res) => {
 };
 
 // Update customer
-exports.updateCustomer = async (req, res) => {
+export const updateCustomer = async (req, res) => {
   try {
     const [updated] = await Customer.update(req.body, {
       where: { id: req.params.id }
@@ -56,7 +56,7 @@ exports.updateCustomer = async (req, res) => {
 };
 
 // Delete customer
-exports.deleteCustomer = async (req, res) => {
+export const deleteCustomer = async (req, res) => {
   try {
     const deleted = await Customer.destroy({
       where: { id: req.params.id }
@@ -66,7 +66,7 @@ exports.deleteCustomer = async (req, res) => {
       return res.status(404).json({ message: 'Customer not found' });
     }
     
-    res.status(200).json({ message: 'Customer deleted successfully' });
+    res.status(204).send();
   } catch (error) {
     console.error('Error in deleteCustomer:', error);
     res.status(500).json({ message: 'Server error', error: error.message });

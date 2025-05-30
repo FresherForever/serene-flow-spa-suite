@@ -1,20 +1,27 @@
-const express = require('express');
+import express from 'express';
+import {
+  getAllStaff,
+  getStaffById,
+  createStaff,
+  updateStaff,
+  deleteStaff
+} from '../controllers/staffController.js';
+
 const router = express.Router();
-const staffController = require('../controllers/staffController');
 
 // GET /api/staff - Get all staff members
-router.get('/', staffController.getAllStaff);
+router.get('/', getAllStaff);
 
 // GET /api/staff/:id - Get a staff member by ID
-router.get('/:id', staffController.getStaffById);
+router.get('/:id', getStaffById);
 
 // POST /api/staff - Create a new staff member
-router.post('/', staffController.createStaff);
+router.post('/', createStaff);
 
 // PUT /api/staff/:id - Update a staff member
-router.put('/:id', staffController.updateStaff);
+router.put('/:id', updateStaff);
 
 // DELETE /api/staff/:id - Delete a staff member
-router.delete('/:id', staffController.deleteStaff);
+router.delete('/:id', deleteStaff);
 
-module.exports = router;
+export default router;

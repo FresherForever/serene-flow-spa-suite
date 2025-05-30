@@ -1,7 +1,7 @@
-const { Appointment, Customer, Staff, Service } = require('../models');
+import { Appointment, Customer, Staff, Service } from '../models/index.js';
 
 // Get all appointments
-exports.getAllAppointments = async (req, res) => {
+export const getAllAppointments = async (req, res) => {
   try {
     const appointments = await Appointment.findAll({
       include: [
@@ -18,7 +18,7 @@ exports.getAllAppointments = async (req, res) => {
 };
 
 // Get appointment by ID
-exports.getAppointmentById = async (req, res) => {
+export const getAppointmentById = async (req, res) => {
   try {
     const appointment = await Appointment.findByPk(req.params.id, {
       include: [
@@ -40,7 +40,7 @@ exports.getAppointmentById = async (req, res) => {
 };
 
 // Create a new appointment
-exports.createAppointment = async (req, res) => {
+export const createAppointment = async (req, res) => {
   try {
     const appointment = await Appointment.create(req.body);
     
@@ -61,7 +61,7 @@ exports.createAppointment = async (req, res) => {
 };
 
 // Update appointment
-exports.updateAppointment = async (req, res) => {
+export const updateAppointment = async (req, res) => {
   try {
     const [updated] = await Appointment.update(req.body, {
       where: { id: req.params.id }
@@ -87,7 +87,7 @@ exports.updateAppointment = async (req, res) => {
 };
 
 // Delete appointment
-exports.deleteAppointment = async (req, res) => {
+export const deleteAppointment = async (req, res) => {
   try {
     const deleted = await Appointment.destroy({
       where: { id: req.params.id }

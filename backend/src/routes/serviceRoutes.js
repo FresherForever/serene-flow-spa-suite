@@ -1,20 +1,27 @@
-const express = require('express');
+import express from 'express';
+import {
+  getAllServices,
+  getServiceById,
+  createService,
+  updateService,
+  deleteService
+} from '../controllers/serviceController.js';
+
 const router = express.Router();
-const serviceController = require('../controllers/serviceController');
 
 // GET /api/services - Get all services
-router.get('/', serviceController.getAllServices);
+router.get('/', getAllServices);
 
 // GET /api/services/:id - Get a service by ID
-router.get('/:id', serviceController.getServiceById);
+router.get('/:id', getServiceById);
 
 // POST /api/services - Create a new service
-router.post('/', serviceController.createService);
+router.post('/', createService);
 
 // PUT /api/services/:id - Update a service
-router.put('/:id', serviceController.updateService);
+router.put('/:id', updateService);
 
 // DELETE /api/services/:id - Delete a service
-router.delete('/:id', serviceController.deleteService);
+router.delete('/:id', deleteService);
 
-module.exports = router;
+export default router;

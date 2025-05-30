@@ -1,6 +1,7 @@
 // PostgreSQL configuration for Serene Flow Spa Suite
-const { Sequelize } = require('sequelize');
-require('dotenv').config();
+import { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
+dotenv.config();
 
 // Create Sequelize instance
 let sequelize;
@@ -44,20 +45,18 @@ if (process.env.DATABASE_URL) {
 }
 
 // Export the sequelize instance and initialization function
-module.exports = {
-  sequelize,
-  initDatabase: async () => {
-    try {
-      await sequelize.authenticate();
-      console.log('✅ Connection to the database has been established successfully.');
-      global.dbConnected = true;
-      return true;
-    } catch (error) {
-      console.error('⚠️ Unable to connect to the database:', error.message);
-      console.log('❗ NOTE: The application will run with limited functionality.');
-      console.log('📝 To fix: Please make sure PostgreSQL is installed and running, and update .env file with correct credentials.');
-      global.dbConnected = false;
-      return false;
-    }
+export { sequelize };
+export const initDatabase = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('✅ Connection to the database has been established successfully.');
+    global.dbConnected = true;
+    return true;
+  } catch (error) {
+    console.error('⚠️ Unable to connect to the database:', error.message);
+    console.log('❗ NOTE: The application will run with limited functionality.');
+    console.log('📝 To fix: Please make sure PostgreSQL is installed and running, and update .env file with correct credentials.');
+    global.dbConnected = false;
+    return false;
   }
 };

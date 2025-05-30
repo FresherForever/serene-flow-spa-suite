@@ -1,20 +1,27 @@
-const express = require('express');
+import express from 'express';
+import {
+  getAllCustomers,
+  getCustomerById,
+  createCustomer,
+  updateCustomer,
+  deleteCustomer
+} from '../controllers/customerController.js';
+
 const router = express.Router();
-const customerController = require('../controllers/customerController');
 
 // GET /api/customers - Get all customers
-router.get('/', customerController.getAllCustomers);
+router.get('/', getAllCustomers);
 
 // GET /api/customers/:id - Get a customer by ID
-router.get('/:id', customerController.getCustomerById);
+router.get('/:id', getCustomerById);
 
 // POST /api/customers - Create a new customer
-router.post('/', customerController.createCustomer);
+router.post('/', createCustomer);
 
 // PUT /api/customers/:id - Update a customer
-router.put('/:id', customerController.updateCustomer);
+router.put('/:id', updateCustomer);
 
 // DELETE /api/customers/:id - Delete a customer
-router.delete('/:id', customerController.deleteCustomer);
+router.delete('/:id', deleteCustomer);
 
-module.exports = router;
+export default router;

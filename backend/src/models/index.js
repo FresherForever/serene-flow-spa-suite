@@ -1,10 +1,8 @@
-const { sequelize } = require('../config/database');
-
-// Import models after initializing sequelize
-const Customer = require('./Customer');
-const Staff = require('./Staff');
-const Service = require('./Service');
-const Appointment = require('./Appointment');
+import { sequelize } from '../config/database.js';
+import Customer from './Customer.js';
+import Staff from './Staff.js';
+import Service from './Service.js';
+import Appointment from './Appointment.js';
 
 // Define relationships between models
 Appointment.belongsTo(Customer);
@@ -17,7 +15,7 @@ Appointment.belongsTo(Service);
 Service.hasMany(Appointment);
 
 // Function to sync all models with the database
-const syncDatabase = async (force = false) => {
+export const syncDatabase = async (force = false) => {
   try {
     await sequelize.sync({ force });
     console.log('Database synced successfully');
@@ -26,11 +24,4 @@ const syncDatabase = async (force = false) => {
   }
 };
 
-module.exports = {
-  Customer,
-  Staff,
-  Service,
-  Appointment,
-  sequelize,
-  syncDatabase
-};
+export { Customer, Staff, Service, Appointment, sequelize };

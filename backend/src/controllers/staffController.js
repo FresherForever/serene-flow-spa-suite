@@ -1,7 +1,6 @@
-const { Staff } = require('../models');
+import { Staff } from '../models/index.js';
 
-// Get all staff members
-exports.getAllStaff = async (req, res) => {
+export const getAllStaff = async (req, res) => {
   try {
     const staff = await Staff.findAll();
     res.status(200).json(staff);
@@ -11,8 +10,7 @@ exports.getAllStaff = async (req, res) => {
   }
 };
 
-// Get staff by ID
-exports.getStaffById = async (req, res) => {
+export const getStaffById = async (req, res) => {
   try {
     const staff = await Staff.findByPk(req.params.id);
     if (!staff) {
@@ -25,8 +23,7 @@ exports.getStaffById = async (req, res) => {
   }
 };
 
-// Create a new staff member
-exports.createStaff = async (req, res) => {
+export const createStaff = async (req, res) => {
   try {
     const staff = await Staff.create(req.body);
     res.status(201).json(staff);
@@ -36,17 +33,14 @@ exports.createStaff = async (req, res) => {
   }
 };
 
-// Update staff member
-exports.updateStaff = async (req, res) => {
+export const updateStaff = async (req, res) => {
   try {
     const [updated] = await Staff.update(req.body, {
       where: { id: req.params.id }
     });
-    
     if (updated === 0) {
       return res.status(404).json({ message: 'Staff member not found' });
     }
-    
     const updatedStaff = await Staff.findByPk(req.params.id);
     res.status(200).json(updatedStaff);
   } catch (error) {
@@ -55,18 +49,13 @@ exports.updateStaff = async (req, res) => {
   }
 };
 
-// Delete staff member
-exports.deleteStaff = async (req, res) => {
+export const deleteStaff = async (req, res) => {
   try {
-    const deleted = await Staff.destroy({
-      where: { id: req.params.id }
-    });
-    
-    if (deleted === 0) {
+    const deleted = await Staff.destroy({ where: { id: req.params.id } });
+    if (!deleted) {
       return res.status(404).json({ message: 'Staff member not found' });
     }
-    
-    res.status(200).json({ message: 'Staff member deleted successfully' });
+    res.status(204).send();
   } catch (error) {
     console.error('Error in deleteStaff:', error);
     res.status(500).json({ message: 'Server error', error: error.message });

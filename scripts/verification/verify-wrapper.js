@@ -67,13 +67,13 @@ async function runVerification() {
   const args = process.argv.slice(2);
   
   // Determine which verification script to run
-  const scriptName = args.includes('--deployed') ? 'verify-deployed.js' : 'verify-deployment.js';
-  
+  const scriptName = args.includes('--deployed') ? './verify-deployed.js' : './verify-deployment.js';
+
   console.log(`\n🚀 Running ${scriptName}...\n`);
   try {
     // Forward all arguments except for our own flags
     const filteredArgs = args.filter(arg => arg !== '--deployed');
-    execSync(`node ${scriptName} ${filteredArgs.join(' ')}`, { stdio: 'inherit' });
+    execSync(`node ${scriptName} ${filteredArgs.join(' ')}`, { stdio: 'inherit', cwd: __dirname });
     console.log('\n✅ Verification completed');
   } catch (error) {
     console.error('\n❌ Verification failed');

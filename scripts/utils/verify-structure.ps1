@@ -14,7 +14,6 @@ $requiredDirs = @(
 
 $requiredFiles = @(
     "scripts/database/migrate-database.js",
-    "scripts/database/migrate-database.cjs",
     "scripts/database/sql/initial_schema_reference.sql",
     "docs/PROJECT_STRUCTURE.md",
     ".env.example"

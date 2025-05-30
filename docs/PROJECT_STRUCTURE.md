@@ -22,7 +22,7 @@ This document outlines the changes made to organize the project structure and ex
 ## Where to Find Key Files
 
 ### Database
-- Migration scripts: `/scripts/database/migrate-database.js` and `/scripts/database/migrate-database.cjs`
+- Migration scripts: `/scripts/database/migrate-database.js`
 - SQL schema reference: `/scripts/database/sql/initial_schema_reference.sql`
 
 ### Deployment

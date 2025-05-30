@@ -1,14 +1,8 @@
 // Root API handler for Vercel serverless functions
 // This file handles requests to the /api endpoint
 
-// Import your actual server implementation using dynamic import
-// We'll need to use dynamic import since we're in an ES module
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const serverHandler = require('../backend/src/server');
-
 // Export handler for Vercel serverless function
-export default function handler(req, res) {
+export default async function handler(req, res) {
   // Add CORS headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -35,7 +29,8 @@ export default function handler(req, res) {
   
   // Forward other requests to your backend handler
   try {
-    return serverHandler(req, res);
+    const backend = await import('../backend/src/server.js');
+    return backend.default ? backend.default(req, res) : backend(req, res);
   } catch (error) {
     console.error('API Error:', error);
     res.status(500).json({ error: 'Internal Server Error', details: error.message });

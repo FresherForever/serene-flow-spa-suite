@@ -1,6 +1,6 @@
-const app = require('./server');
-const { syncDatabase } = require('./models');
-const { initDatabase } = require('./config/database');
+import app from './server.js';
+import { syncDatabase } from './models/index.js';
+import { initDatabase } from './config/database.js';
 
 // Initialize database
 const initApp = async () => {

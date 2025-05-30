@@ -13,9 +13,12 @@ dotenv.config();
 // Get the environment type from command line arguments
 const args = process.argv.slice(2);
 const isVercel = args.includes('--vercel');
+
+// Determine frontend port from environment or fallback
+const frontendPort = process.env.VITE_PORT || process.env.FRONTEND_PORT || '5173';
 const baseUrl = isVercel 
   ? (process.env.VERCEL_URL || 'https://your-vercel-app-url.vercel.app') 
-  : 'http://localhost:5173';
+  : `http://localhost:${frontendPort}`;
 const apiBaseUrl = isVercel 
   ? `${baseUrl}/api` 
   : 'http://localhost:5000/api';
@@ -23,6 +26,24 @@ const apiBaseUrl = isVercel
 console.log(chalk.blue('='.repeat(50)));
 console.log(chalk.blue(`Verification for ${chalk.yellow(isVercel ? 'Vercel Deployment' : 'Localhost')}`));
 console.log(chalk.blue('='.repeat(50)));
+if (!isVercel) {
+  console.log(chalk.cyan(`Frontend verification will use port: ${frontendPort}`));
+}
+
+// Helper to find the first open frontend port
+async function findFrontendPort() {
+  const portsToTry = [3000];
+  for (let port = 5173; port <= 5199; port++) portsToTry.push(port);
+  for (const port of portsToTry) {
+    try {
+      const res = await fetch(`http://localhost:${port}`);
+      if (res.ok) return port;
+    } catch (e) {
+      // Ignore connection errors
+    }
+  }
+  return null;
+}
 
 // Function to verify the API endpoints
 async function verifyApi() {
@@ -80,13 +101,11 @@ async function verifyApi() {
 }
 
 // Function to verify the frontend
-async function verifyFrontend() {
+async function verifyFrontend(url = baseUrl) {
   console.log(chalk.cyan('\n◆ Frontend Verification:'));
-  
   try {
     console.log('  Checking frontend accessibility...');
-    const response = await fetch(baseUrl);
-    
+    const response = await fetch(url);
     if (response.ok) {
       console.log(chalk.green('  ✓ Frontend is accessible'));
       console.log(`    Status: ${response.status}`);
@@ -115,8 +134,20 @@ function printSystemInfo() {
 async function runVerification() {
   printSystemInfo();
   await verifyApi();
-  await verifyFrontend();
-  
+
+  // Auto-detect frontend port if not Vercel
+  let frontendUrl = baseUrl;
+  if (!isVercel) {
+    const detectedPort = await findFrontendPort();
+    if (detectedPort && detectedPort !== frontendPort) {
+      frontendUrl = `http://localhost:${detectedPort}`;
+      console.log(chalk.cyan(`Auto-detected running frontend on port: ${detectedPort}`));
+    } else if (!detectedPort) {
+      console.log(chalk.red('No running frontend detected on ports 3000, 5173-5199.'));
+    }
+  }
+  await verifyFrontend(frontendUrl);
+
   console.log(chalk.blue('\n='.repeat(50)));
   console.log(chalk.blue('Verification Complete'));
   console.log(chalk.blue('='.repeat(50)));

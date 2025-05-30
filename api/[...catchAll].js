@@ -1,12 +1,10 @@
 // Enhanced catch-all.js - Handles all API requests with robust error handling
-// Use createRequire to import CommonJS modules
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
 
-// Attempt to require the server handler, but provide fallbacks if it fails
+// Attempt to import the server handler, but provide fallbacks if it fails
 let serverHandler;
 try {
-  serverHandler = require('../backend/src/server');
+  const backend = await import('../backend/src/server.js');
+  serverHandler = backend.default ? backend.default : backend;
 } catch (importError) {
   console.warn('Failed to import server handler:', importError.message);
   console.warn('Using fallback API handler instead');
