@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "node vercel-build.js",
+  "buildCommand": "node scripts/deployment/vercel-build.js",
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/api/health", "destination": "/api/health.js" },

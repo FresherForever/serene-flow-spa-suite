@@ -409,7 +409,7 @@ function Test-Deployment {
         }
         
         # Check for vercel-build.js
-        if (Test-Path "vercel-build.js") {
+        if (Test-Path "scripts/deployment/vercel-build.js") {
             Write-Host "  ✅ vercel-build.js found" -ForegroundColor $successColor
         } else {
             Write-Host "  ❌ vercel-build.js not found" -ForegroundColor $errorColor
@@ -438,7 +438,7 @@ function Test-Deployment {
         # Check build scripts
         Write-Host "`n  Checking build scripts..." -ForegroundColor $infoColor
         
-        $buildScripts = @("build.js", "static-build.js", "vercel-build.js")
+        $buildScripts = @("build.js", "static-build.js", "scripts/deployment/vercel-build.js")
         foreach ($script in $buildScripts) {
             if (Test-Path $script) {
                 Write-Host "  ✅ $script found" -ForegroundColor $successColor
@@ -455,14 +455,16 @@ function Test-Deployment {
         # Test build process
         Write-Host "  Testing build process (dry run)..." -ForegroundColor $infoColor
         
-        if (Test-Path "vercel-build.js") {
+        if (Test-Path "scripts/deployment/vercel-build.js") {
             # Run a dry build check that just validates the script without building
             try {
-                node -e "require('./vercel-build.js'); console.log('Syntax check passed');" 2>&1
+                node -e "require('./scripts/deployment/vercel-build.js'); console.log('Syntax check passed');" 2>&1
                 Write-Host "  ✅ vercel-build.js syntax check passed" -ForegroundColor $successColor
             } catch {
                 Write-Host "  ❌ vercel-build.js syntax check failed: $_" -ForegroundColor $errorColor
             }
+        } else {
+            Write-Host "  ❌ vercel-build.js not found for syntax check" -ForegroundColor $errorColor
         }
         
         # Check package.json for Vercel scripts

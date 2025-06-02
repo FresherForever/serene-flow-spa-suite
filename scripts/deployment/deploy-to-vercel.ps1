@@ -40,7 +40,7 @@ try {
     }
     
     # Run the vercel build script
-    node vercel-build.js
+    node scripts/deployment/vercel-build.js
     
     if (-not $?) {
         throw "Build failed"
