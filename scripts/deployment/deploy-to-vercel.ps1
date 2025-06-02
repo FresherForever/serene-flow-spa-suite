@@ -58,7 +58,7 @@ try {
 # 4. Run verification tests on the build
 Write-Host "🧪 Verifying build..." -ForegroundColor Cyan
 try {
-    node verify-deployment.js --local
+    node scripts/verification/verify-deployment.js --local
     
     if (-not $?) {
         throw "Verification failed"
