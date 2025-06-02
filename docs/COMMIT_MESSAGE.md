@@ -10,7 +10,7 @@ This commit fixes the DEPLOYMENT_NOT_FOUND error that was occurring during Verce
 - Updated Vercel configuration in `vercel.json`
 
 ## Added Verification Tools:
-- Created `verify-deployed.js` to validate deployments
+- Created `scripts/verification/verify-deployed.js` to validate deployments
 - Added `verify-wrapper.js` as a smart wrapper for verification tools
 - Created various verification scripts to ensure proper deployment
 

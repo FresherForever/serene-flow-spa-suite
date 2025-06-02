@@ -99,7 +99,7 @@ Write-Host "⏳ Waiting for deployment to complete..." -ForegroundColor Cyan
 Start-Sleep -Seconds 30
 
 Write-Host "🔍 Verifying deployed site..." -ForegroundColor Cyan
-node verify-deployed.js --vercel --verbose
+node scripts/verification/verify-deployed.js --vercel --verbose
 
 Write-Host "📝 Deployment Summary:" -ForegroundColor Cyan
 Write-Host "- Deployment initiated from branch: $currentBranch" -ForegroundColor White

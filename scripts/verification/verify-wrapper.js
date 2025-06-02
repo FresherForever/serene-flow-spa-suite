@@ -67,7 +67,7 @@ async function runVerification() {
   const args = process.argv.slice(2);
   
   // Determine which verification script to run
-  const scriptName = args.includes('--deployed') ? './verify-deployed.js' : './scripts/verification/verify-deployment.js';
+  const scriptName = args.includes('--deployed') ? './scripts/verification/verify-deployed.js' : './scripts/verification/verify-deployment.js';
 
   console.log(`\n🚀 Running ${scriptName}...\n`);
   try {
