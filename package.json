@@ -12,7 +12,6 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "vercel-build": "node scripts/deployment/vercel-build.js",
-    "preinstall": "node scripts/deployment/vercel-setup.js",
     "verify": "node scripts/verification/verify-wrapper.js",
     "verify:local": "node scripts/verification/verify-wrapper.js",
     "verify:vercel": "node scripts/verification/verify-wrapper.js --vercel",
