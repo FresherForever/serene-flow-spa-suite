@@ -52,7 +52,7 @@ async function runVerification() {
     // We need to use dynamic import after installing packages
     try {
       console.log('\n🔄 Importing verification module...');
-      const verifyModule = await import('./verify-deployment.js');
+      const verifyModule = await import('./scripts/verification/verify-deployment.js');
       console.log('✅ Module imported successfully\n');
     } catch (error) {
       console.error('❌ Failed to import verification module:', error.message);
@@ -67,7 +67,7 @@ async function runVerification() {
   const args = process.argv.slice(2);
   
   // Determine which verification script to run
-  const scriptName = args.includes('--deployed') ? './verify-deployed.js' : './verify-deployment.js';
+  const scriptName = args.includes('--deployed') ? './scripts/verification/verify-deployed.js' : './scripts/verification/verify-deployment.js';
 
   console.log(`\n🚀 Running ${scriptName}...\n`);
   try {
